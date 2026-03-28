@@ -43,6 +43,11 @@ class FHIRClient:
         try:
             async with httpx.AsyncClient(timeout=_TIMEOUT) as http:
                 resp = await http.get(url, headers=self._headers, params=params)
+                # Some DSTU2 servers reject _sort=-date — retry without sort params
+                if resp.status_code == 400 and "_sort" in params:
+                    retry_params = {k: v for k, v in params.items() if k != "_sort"}
+                    logger.warning("FHIR 400 on _sort — retrying without sort for %s", resource_type)
+                    resp = await http.get(url, headers=self._headers, params=retry_params)
                 resp.raise_for_status()
                 return resp.json()
         except httpx.TimeoutException:

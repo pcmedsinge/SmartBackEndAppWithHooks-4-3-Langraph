@@ -137,25 +137,67 @@ The service responds with:
 
 ## Current phase and milestone
 
-**Phase:** 1  
-**Current milestone:** M6 — Docker + Azure deployment
-**Status:** Complete (pending live deploy — Docker Desktop not running locally)
+**Phase:** 2
+**Current milestone:** M1 — JWT validation middleware
+**Status:** Not started
+**Backend:** https://clinagent-api.onrender.com
+**Frontend:** https://lemon-bush-011912610.1.azurestaticapps.net
 
-### M1 checklist (complete)
-- [x] requirements.txt
-- [x] .env.example
-- [x] app/models/hooks.py
-- [x] app/models/cards.py
-- [x] app/main.py (hardcoded card response)
-- [x] Verify: GET /cds-services returns discovery JSON
-- [x] Verify: POST /cds-services/clinagent-ddi returns a hardcoded card
+---
 
-### Upcoming milestones
-- M2: FHIR client (app/fhir/client.py)
-- M3: DDI LangGraph agent
-- M4: Sepsis LangGraph agent
-- M5: SMART React app
-- M6: Docker + Azure deployment
+## Phase 1 — Complete ✓
+
+All 6 milestones delivered (2026-03-29):
+- [x] M1: FastAPI skeleton + Pydantic models
+- [x] M2: FHIR client (prefetch-first, live fallback, DSTU2 _sort graceful retry)
+- [x] M3: DDI LangGraph agent (curated 18-pair dataset, GPT-4o reasoning)
+- [x] M4: Sepsis LangGraph agent (qSOFA, LOINC extraction, SMART app link)
+- [x] M5: React SMART app (qSOFA checklist, provider action tabs, dual launch mode)
+- [x] M6: Docker + Render backend + Azure Static Web Apps frontend
+
+---
+
+## Phase 2 — Production Hardening
+
+**Goal:** Make ClinAgent safe and ready for real EHR integration.
+**Theme:** Security + Quality + Clinical Expansion
+
+### M1 — JWT Validation Middleware
+- FastAPI middleware that verifies EHR-issued JWT on every hook POST
+- Validate: `iss`, `aud`, `exp`, `scope` claims
+- Fetch EHR's public JWKS from well-known URL for signature verification
+- `SANDBOX_MODE=true` bypasses validation (dev only)
+- Files: `app/middleware/jwt_auth.py`, update `app/main.py`
+
+### M2 — CDS Hooks Request Signing (JWK)
+- Verify the `Authorization` header on hook requests using the EHR's JWK
+- Implement per CDS Hooks v2.0.1 security spec
+- Files: `app/middleware/hook_signing.py`
+
+### M3 — Test Suite
+- Unit tests for all tool functions (qSOFA scoring, DDI lookup, FHIR extraction)
+- Integration tests: mock hook payloads against live agent graphs
+- Fixture bundles for DSTU2 + R4 FHIR responses
+- Files: `tests/test_sepsis_tools.py`, `tests/test_ddi_tools.py`, `tests/test_agents.py`
+
+### M4 — Third Clinical Use Case: AKI (Acute Kidney Injury)
+- Hook: `patient-view` (alongside sepsis — same hook, new service)
+- Signal: Creatinine rise > 0.3 mg/dL within 48h OR > 1.5x baseline (KDIGO criteria)
+- LOINC: Creatinine = 2160-0, eGFR = 62238-1
+- Card: warning or critical based on AKI stage (1/2/3)
+- Files: `app/agents/aki/`
+
+### M5 — LangSmith Observability Setup
+- Configure LangSmith project + API key
+- Add per-agent run metadata: hook type, patient pseudoID, qSOFA score
+- Latency dashboard: target p95 < 2000ms end-to-end
+- Files: update all `nodes.py`, `.env.example`
+
+### M6 — Rate Limiting + Abuse Protection
+- Per-IP rate limiting on CDS endpoints (slowapi)
+- Request size limit (reject oversized payloads)
+- Structured error responses (never leak stack traces)
+- Files: `app/middleware/rate_limit.py`
 
 ---
 

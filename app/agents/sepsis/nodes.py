@@ -174,7 +174,7 @@ async def card_builder(state: dict[str, Any]) -> dict[str, Any]:
         from urllib.parse import urlencode
         params = urlencode({"fhirServiceUrl": fhir_server, "patientId": patient_id})
         launch_url = f"{smart_app_url}?{params}"
-        links = [Link(label="Open Sepsis Checklist", url=launch_url, type="smart")]
+        links = [Link(label="Open Sepsis Checklist", url=launch_url, type="absolute")]
 
     card = Card(
         summary=f"Sepsis risk: {risk_level.capitalize()} (qSOFA {qsofa['score']}/3)",
