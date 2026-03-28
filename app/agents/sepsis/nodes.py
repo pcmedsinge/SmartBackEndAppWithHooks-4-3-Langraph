@@ -169,7 +169,12 @@ async def card_builder(state: dict[str, Any]) -> dict[str, Any]:
     smart_app_url = os.getenv("SMART_APP_URL", "")
     links = []
     if smart_app_url:
-        links = [Link(label="Open Sepsis Checklist", url=smart_app_url, type="smart")]
+        fhir_server = state.get("fhir_server", "")
+        patient_id = state.get("patient_id", "")
+        from urllib.parse import urlencode
+        params = urlencode({"fhirServiceUrl": fhir_server, "patientId": patient_id})
+        launch_url = f"{smart_app_url}?{params}"
+        links = [Link(label="Open Sepsis Checklist", url=launch_url, type="smart")]
 
     card = Card(
         summary=f"Sepsis risk: {risk_level.capitalize()} (qSOFA {qsofa['score']}/3)",
