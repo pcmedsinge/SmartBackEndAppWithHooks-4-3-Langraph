@@ -14,6 +14,7 @@ from typing import Any
 LOINC_RESPIRATORY_RATE = "9279-1"
 LOINC_SYSTOLIC_BP = "8480-6"
 LOINC_BLOOD_PRESSURE_PANEL = "55284-4"
+LOINC_BLOOD_PRESSURE_PANEL_ALT = "85354-9"  # Synthea / US Core variant
 LOINC_GCS_TOTAL = "9269-2"
 LOINC_LACTATE = "2524-7"        # Lactate [Moles/volume] in Blood
 LOINC_LACTATE_ALT = "59032-3"   # Lactate [Mass/volume] in Blood
@@ -83,8 +84,8 @@ def extract_vitals(bundle: dict[str, Any]) -> dict[str, float | None]:
         if LOINC_SYSTOLIC_BP in codes and vitals["systolic_bp"] is None:
             vitals["systolic_bp"] = _get_numeric_value(obs)
 
-        # Systolic BP may be a component inside a BP panel
-        if LOINC_BLOOD_PRESSURE_PANEL in codes and vitals["systolic_bp"] is None:
+        # Systolic BP may be a component inside a BP panel (55284-4 or 85354-9 Synthea/US Core)
+        if (LOINC_BLOOD_PRESSURE_PANEL in codes or LOINC_BLOOD_PRESSURE_PANEL_ALT in codes) and vitals["systolic_bp"] is None:
             vitals["systolic_bp"] = _get_component_value(obs, LOINC_SYSTOLIC_BP)
 
         if LOINC_GCS_TOTAL in codes and vitals["gcs_total"] is None:
