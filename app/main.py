@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.agents.ddi.graph import run_ddi_agent
 from app.agents.sepsis.graph import run_sepsis_agent
@@ -13,6 +14,14 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="ClinAgent", version="0.1.0")
+
+# CDS Hooks spec requires the service to be accessible from EHR browser clients
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 _SERVICES: list[CDSService] = [
     CDSService(
