@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: clinagent-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /cds-services
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: LANGCHAIN_TRACING_V2
+        value: "true"
+      - key: LANGSMITH_API_KEY
+        sync: false
+      - key: LANGCHAIN_PROJECT
+        value: clinagent
+      - key: FHIR_SERVER_URL
+        value: https://r4.smarthealthit.org
+      - key: SANDBOX_MODE
+        value: "true"
+      - key: SMART_APP_URL
+        sync: false

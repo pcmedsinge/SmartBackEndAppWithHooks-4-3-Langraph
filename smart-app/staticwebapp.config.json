@@ -1,0 +1,26 @@
+{
+  "routes": [
+    {
+      "route": "/launch",
+      "rewrite": "/launch.html"
+    },
+    {
+      "route": "/launch.html",
+      "serve": "/launch.html"
+    },
+    {
+      "route": "/*",
+      "serve": "/index.html",
+      "statusCode": 200
+    }
+  ],
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/*.js", "/*.css", "/*.ico", "/*.png", "/*.svg"]
+  },
+  "globalHeaders": {
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "SAMEORIGIN"
+  }
+}
