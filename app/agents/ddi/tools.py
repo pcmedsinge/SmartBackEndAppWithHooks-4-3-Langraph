@@ -38,12 +38,18 @@ def extract_drug_info(med_request: dict[str, Any]) -> tuple[str | None, str | No
     return None, display
 
 
+_MED_RESOURCE_TYPES = {"MedicationRequest", "MedicationOrder", "MedicationStatement"}
+
+
 def extract_drugs_from_bundle(bundle: dict[str, Any]) -> list[dict[str, str]]:
-    """Extract list of {rxcui, name} dicts from a MedicationRequest Bundle."""
+    """Extract list of {rxcui, name} dicts from a medication Bundle.
+
+    Handles both R4 (MedicationRequest) and DSTU2 (MedicationOrder) resource types.
+    """
     drugs: list[dict[str, str]] = []
     for entry in bundle.get("entry", []):
         resource = entry.get("resource", {})
-        if resource.get("resourceType") != "MedicationRequest":
+        if resource.get("resourceType") not in _MED_RESOURCE_TYPES:
             continue
         status = resource.get("status", "")
         if status not in ("active", "draft", ""):
