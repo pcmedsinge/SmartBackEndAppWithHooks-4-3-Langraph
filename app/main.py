@@ -34,6 +34,15 @@ _SERVICES: list[CDSService] = [
         },
     ),
     CDSService(
+        hook="medication-prescribe",
+        title="ClinAgent — Drug-Drug Interaction Checker",
+        description="Checks newly signed medication orders for clinically significant drug-drug interactions.",
+        id="clinagent-ddi-rx",
+        prefetch={
+            "medications": "MedicationRequest?patient={{context.patientId}}&status=active",
+        },
+    ),
+    CDSService(
         hook="patient-view",
         title="ClinAgent — Sepsis Early Warning",
         description="Screens for early sepsis indicators using qSOFA and SIRS criteria.",
@@ -66,6 +75,17 @@ async def clinagent_ddi(request: Request) -> CDSResponse:
         return await run_ddi_agent(body)
     except Exception as exc:
         logger.exception("Unhandled error in clinagent-ddi: %s", exc)
+        return CDSResponse(cards=[])
+
+
+@app.post("/cds-services/clinagent-ddi-rx", response_model=CDSResponse)
+async def clinagent_ddi_rx(request: Request) -> CDSResponse:
+    """DDI hook endpoint for medication-prescribe hook (sandbox compatibility)."""
+    try:
+        body = await request.json()
+        return await run_ddi_agent(body)
+    except Exception as exc:
+        logger.exception("Unhandled error in clinagent-ddi-rx: %s", exc)
         return CDSResponse(cards=[])
 
 
